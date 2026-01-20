@@ -19,6 +19,7 @@ config =  {
 "fingerprint": sec["fingerprint"],
 "region": sec["region"],
 "key_content": sec["private_key"],
+"pass_phrase":sec.get("pass_phrase"),
 }
 oci.config.validate_config(config)
 #oci.config.from_file(profile_name="DEFAULT") # Update this with your own profile name
