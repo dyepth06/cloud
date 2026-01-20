@@ -31,29 +31,45 @@ region = config["region"] # e.g., "us-chicago-1"
 service_ep = "https://generativeaiagents-runtime.us-chicago-1.oci.oraclecloud.com/"
 agent_ep_id = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja" # Update this with your own agent endpoint OCID, this can be found within Generative AI Agents > Agents > (Your Agent) > Endpoints > (Your Endpoint) > OCID
 
-# Response Generator
-def response_generator(textinput):
-    # Initialize service client with default config file
-    generative_ai_agent_runtime_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(config,service_endpoint=service_ep)
 
-    # Create Session
-    create_session_response = generative_ai_agent_runtime_client.create_session(
-        create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
-            display_name="USER_Session",
-            description="User Session"),
-        agent_endpoint_id=agent_ep_id)
 
-    sess_id = create_session_response.data.id
+#Create client once
 
-    response = generative_ai_agent_runtime_client.chat(
-        agent_endpoint_id=agent_ep_id,
-        chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
-            user_message=textinput,
-            session_id=sess_id))
+if "ga_client" not in st.session_state:
+st.session_state.ga_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
+config, service_endpoint=service_ep
+)
 
-    #print(str(response.data))
-    response = response.data.message.content.text
-    return response
+client = st.session_state.ga_client
+
+#Create a session once per user conversation and reuse
+
+def get_session_id():
+if "agent_session_id" not in st.session_state:
+try:
+resp = client.create_session(
+create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
+display_name="USER_Session",
+description="User Session"
+),
+agent_endpoint_id=agent_ep_id,
+)
+st.session_state.agent_session_id = resp.data.id
+except oci.exceptions.ServiceError as e:
+st.error(f"CreateSession failed: status={e.status}, code={e.code}, msg={e.message}")
+raise
+return st.session_state.agent_session_id
+
+def response_generator(textinput: str) -> str:
+sess_id = get_session_id()
+try:
+resp = client.chat(
+agent_endpoint_id=agent_ep_id,
+chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
+user_message=textinput,
+session_id=sess_id
+)
+)
 
 # Initialize chat history
 if "messages" not in st.session_state:
