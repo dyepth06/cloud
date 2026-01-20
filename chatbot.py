@@ -45,10 +45,10 @@ if "ga_client" not in st.session_state:
 def get_session_id():
     if "agent_session_id" not in st.session_state:
         try:
-        resp = client.create_session(
-        create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
-        display_name="USER_Session",
-        description="User Session"
+            resp = client.create_session(
+            create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
+            display_name="USER_Session",
+            description="User Session"
         ),
     agent_endpoint_id=agent_ep_id,
     )
