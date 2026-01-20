@@ -36,22 +36,20 @@ agent_ep_id = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374p
 #Create client once
 
 if "ga_client" not in st.session_state:
-st.session_state.ga_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
-config, service_endpoint=service_ep
-)
+    st.session_state.ga_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(config,service_endpoint=service_ep)
 
-client = st.session_state.ga_client
+    client = st.session_state.ga_client
 
 #Create a session once per user conversation and reuse
 
 def get_session_id():
 if "agent_session_id" not in st.session_state:
-try:
-resp = client.create_session(
-create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
-display_name="USER_Session",
-description="User Session"
-),
+    try:
+        resp = client.create_session(
+        create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
+        display_name="USER_Session",
+        description="User Session"
+        ),
 agent_endpoint_id=agent_ep_id,
 )
 st.session_state.agent_session_id = resp.data.id
