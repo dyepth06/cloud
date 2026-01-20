@@ -92,5 +92,4 @@ def response_generator(textinput: str) -> str:
                 response = response_generator(prompt)
                 write_response = st.write(response)
     # Add assistant response to chat history
-
-st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": response})
