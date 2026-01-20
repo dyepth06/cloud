@@ -19,17 +19,19 @@ config =  {
 "fingerprint": sec["fingerprint"],
 "region": sec["region"],
 "key_content": sec["private_key"],
-"pass_phrase":sec.get("pass_phrase"),
 }
+if sec.get("pass_phrase"):
+config["pass_phrase"] = sec["pass_phrase"]
+
 oci.config.validate_config(config)
+
 #oci.config.from_file(profile_name="DEFAULT") # Update this with your own profile name
 
-service_ep = "https://agent-runtime.generativeai.us-chicago-1.oci.oraclecloud.com" # Update this with the appropriate endpoint for your region, a list of valid endpoints can be found here - https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents-client/20240531/
+region = config["region"] # e.g., "us-chicago-1"
+#service_ep = "https://agent-runtime.generativeai.us-chicago-1.oci.oraclecloud.com" # Update this with the appropriate endpoint for your region, a list of valid endpoints can be found here - https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents-client/20240531/
+service_ep = "https://generativeaiagents-runtime.us-chicago-1.oci.oraclecloud.com/"
 agent_ep_id = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja" # Update this with your own agent endpoint OCID, this can be found within Generative AI Agents > Agents > (Your Agent) > Endpoints > (Your Endpoint) > OCID
-generative_ai_agent_runtime_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
-config,
-service_endpoint=service_ep,
-)
+
 # Response Generator
 def response_generator(textinput):
     # Initialize service client with default config file
