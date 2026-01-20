@@ -3,10 +3,10 @@ import time
 import oci
 
 # Page Title
-st.title("OCI Generative AI Agents Demo 🧠") # Update this with your own title
+st.title("JDPChatbot") # Update this with your own title
 
 # Sidebar Image
-st.sidebar.image("https://brendg.co.uk/wp-content/uploads/2021/05/myavatar.png") # Update this with your own image
+#st.sidebar.image("https://brendg.co.uk/wp-content/uploads/2021/05/myavatar.png") # Update this with your own image
 
 # OCI GenAI settings
 config = oci.config.from_file(profile_name="DEFAULT") # Update this with your own profile name
