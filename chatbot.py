@@ -11,8 +11,8 @@ st.title("JDPChatbot") # Update this with your own title
 #Streamlit Secret
 sec = st.secrets["oci"]
 for k in ("user_ocid", "tenancy_ocid", "fingerprint", "region"):
-st.write(k, "present:", bool(sec.get(k)))
-st.code(sec["private_key"][:60] + "...") # should print “-----BEGIN PRIVATE KEY-----”
+    st.write(k, "present:", bool(sec.get(k)))
+    st.code(sec["private_key"][:60] + "...") # should print “-----BEGIN PRIVATE KEY-----”
 
 # OCI GenAI settings
 
@@ -25,6 +25,7 @@ config =  {
 }
 oci.config.validate_config(config)
 #oci.config.from_file(profile_name="DEFAULT") # Update this with your own profile name
+
 service_ep = "https://agent-runtime.generativeai.us-chicago-1.oci.oraclecloud.com" # Update this with the appropriate endpoint for your region, a list of valid endpoints can be found here - https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents-client/20240531/
 agent_ep_id = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja" # Update this with your own agent endpoint OCID, this can be found within Generative AI Agents > Agents > (Your Agent) > Endpoints > (Your Endpoint) > OCID
 
