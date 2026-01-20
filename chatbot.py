@@ -52,7 +52,7 @@ def get_session_id():
         ),
     agent_endpoint_id=agent_ep_id,
     )
-st.session_state.agent_session_id = resp.data.id
+            st.session_state.agent_session_id = resp.data.id
 
     except oci.exceptions.ServiceError as e:
         st.error(f"CreateSession failed: status={e.status}, code={e.code}, msg={e.message}")
