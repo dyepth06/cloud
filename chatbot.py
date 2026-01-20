@@ -60,15 +60,15 @@ def get_session_id():
         return st.session_state.agent_session_id
 
 def response_generator(textinput: str) -> str:
-sess_id = get_session_id()
-try:
-resp = client.chat(
-agent_endpoint_id=agent_ep_id,
-chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
-user_message=textinput,
-session_id=sess_id
-)
-)
+    sess_id = get_session_id()
+        try:
+            resp = client.chat(
+            agent_endpoint_id=agent_ep_id,
+            chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
+            user_message=textinput,
+            session_id=sess_id
+        )
+    )
 
 # Initialize chat history
 if "messages" not in st.session_state:
