@@ -19,9 +19,8 @@ config =  {
 "fingerprint": sec["fingerprint"],
 "region": sec["region"],
 "key_content": sec["private_key"],
+"pass_phrase":sec.get("pass_phrase"):
 }
-if sec.get("pass_phrase"):
-config["pass_phrase"] = sec["pass_phrase"]
 
 oci.config.validate_config(config)
 
