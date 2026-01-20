@@ -54,7 +54,7 @@ def get_session_id():
     )
             st.session_state.agent_session_id = resp.data.id
 
-    except oci.exceptions.ServiceError as e:
+        except oci.exceptions.ServiceError as e:
         st.error(f"CreateSession failed: status={e.status}, code={e.code}, msg={e.message}")
         raise
         return st.session_state.agent_session_id
