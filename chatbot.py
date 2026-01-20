@@ -88,8 +88,8 @@ def response_generator(textinput: str) -> str:
                 st.markdown(prompt)
 
     # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        response = response_generator(prompt)
-        write_response = st.write(response)
+            with st.chat_message("assistant"):
+                response = response_generator(prompt)
+                write_response = st.write(response)
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+                st.session_state.messages.append({"role": "assistant", "content": response})
