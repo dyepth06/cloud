@@ -10,9 +10,6 @@ st.title("JDPChatbot") # Update this with your own title
 
 #Streamlit Secret
 sec = st.secrets["oci"]
-for k in ("user_ocid", "tenancy_ocid", "fingerprint", "region"):
-    st.write(k, "present:", bool(sec.get(k)))
-    st.code(sec["private_key"][:60] + "...") # should print “-----BEGIN PRIVATE KEY-----”
 
 # OCI GenAI settings
 
