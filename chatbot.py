@@ -115,7 +115,7 @@ with col1:
                 except Exception:
                         pass
         st.session_state.messages = []
-        st.experimental_rerun()
+        st.rerun()
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
