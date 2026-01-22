@@ -1,6 +1,16 @@
 import streamlit as st
 import oci
 from typing import Optional
+from oci.exceptions import ServiceError, RequestException
+
+cfg = build_oci_config()
+runtime_ep = get_runtime_endpoint(cfg["region"])
+st.write("Runtime endpoint:", runtime_ep)
+st.write("Agent endpoint OCID prefix:", AGENT_ENDPOINT_ID.split('.')[0:2]) # should include 'ocid1', 'generativeaiagentendpoint'
+
+
+
+
 
 st.set_page_config(page_title="OCI Gen-AI Chatbot", page_icon="💬", layout="centered")
 st.title("OCI Gen-AI Chatbot for Telco")
