@@ -1,95 +1,127 @@
 import streamlit as st
-import time
 import oci
+from typing import Optional
 
-# Page Title
-st.title("JDPChatbot") # Update this with your own title
+st.set_page_config(page_title="JDPChatbot", page_icon="💬", layout="centered")
+st.title("JDPChatbot")
+st.caption("Ask a question to the Generative AI Agent. Click ‘Reset chat’ to start a new session.")
 
-# Sidebar Image
-#st.sidebar.image("https://brendg.co.uk/wp-content/uploads/2021/05/myavatar.png") # Update this with your own image
+#Configuration: Load credentials from Streamlit Secrets
 
-#Streamlit Secret
-sec = st.secrets["oci"]
+def build_oci_config() -> dict:
+    sec = st.secrets["oci"]
+    cfg = {
+        "user": sec["user_ocid"],
+        "tenancy": sec["tenancy_ocid"],
+        "fingerprint": sec["fingerprint"],
+        "region": sec["region"],
+        "key_content": sec["private_key"],
+    }
+    if sec.get("pass_phrase"):
+        cfg["pass_phrase"] = sec["pass_phrase"]
+    oci.config.validate_config(cfg)
+    return cfg
 
-# OCI GenAI settings
+#Runtime constants (update AGENT_ENDPOINT_ID)
+def get_runtime_endpoint(region: str) -> str:
+    return f"https://generativeaiagents-runtime.{region}.oci.oraclecloud.com "
+AGENT_ENDPOINT_ID = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja"
+    
 
-config =  {
-"user": sec["user_ocid"],
-"tenancy": sec["tenancy_ocid"],
-"fingerprint": sec["fingerprint"],
-"region": sec["region"],
-"key_content": sec["private_key"],
-"pass_phrase":sec.get("pass_phrase"),
-}
+#Client lifecycle
 
-oci.config.validate_config(config)
+def get_client() -> oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient:
+    if "ga_client" not in st.session_state:
+        cfg = build_oci_config()
+        endpoint = get_runtime_endpoint(cfg["region"])
+        st.session_state.ga_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(
+                cfg,
+                service_endpoint=endpoint,
+        )
+    return st.session_state.ga_client
 
-#oci.config.from_file(profile_name="DEFAULT") # Update this with your own profile name
-
-region = config["region"] # e.g., "us-chicago-1"
-#service_ep = "https://agent-runtime.generativeai.us-chicago-1.oci.oraclecloud.com" # Update this with the appropriate endpoint for your region, a list of valid endpoints can be found here - https://docs.oracle.com/en-us/iaas/api/#/en/generative-ai-agents-client/20240531/
-service_ep = "https://generativeaiagents-runtime.us-chicago-1.oci.oraclecloud.com/"
-agent_ep_id = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja" # Update this with your own agent endpoint OCID, this can be found within Generative AI Agents > Agents > (Your Agent) > Endpoints > (Your Endpoint) > OCID
-
-
-
-#Create client once
-
-if "ga_client" not in st.session_state:
-    st.session_state.ga_client = oci.generative_ai_agent_runtime.GenerativeAiAgentRuntimeClient(config,service_endpoint=service_ep)
-
-    client = st.session_state.ga_client
-
-#Create a session once per user conversation and reuse
-
-def get_session_id():
+#Agent session lifecycle             
+def ensure_session_id(client) -> str:
     if "agent_session_id" not in st.session_state:
         try:
-            resp = client.create_session(
-            create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
-            display_name="USER_Session",
-            description="User Session"
-        ),
-    agent_endpoint_id=agent_ep_id,
-    )
-            st.session_state.agent_session_id = resp.data.id
-
+                resp = client.create_session(
+                        create_session_details=oci.generative_ai_agent_runtime.models.CreateSessionDetails(
+                                display_name="User Session",
+                                description="Session created by Streamlit app",
+                        ),
+                        agent_endpoint_id=AGENT_ENDPOINT_ID,
+                        retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
+                )
+                st.session_state.agent_session_id = resp.data.id
         except oci.exceptions.ServiceError as e:
-            st.error(f"CreateSession failed: status={e.status}, code={e.code}, msg={e.message}")
-            raise
-        return st.session_state.agent_session_id
+                st.error(f"CreateSession failed (status={e.status}, code={e.code}): {e.message}")
+                raise
+        finally:
 
-def response_generator(textinput: str) -> str:
-    sess_id = get_session_id()
+                st.session_state["create_session_attempted"] = True
+    return st.session_state.agent_session_id
+
+def end_session(client):
+    sess_id = st.session_state.get("agent_session_id")
+    if not sess_id:
+        return
+    try:
+        client.end_session(
+                agent_endpoint_id=AGENT_ENDPOINT_ID,
+                session_id=sess_id,
+                retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
+        )
+    except oci.exceptions.ServiceError:
+        pass
+    finally:
+        st.session_state.pop("agent_session_id", None)
+
+
+
+#Chat with the agent
+def chat_once(user_message: str) -> str:
+    client = get_client()
+    session_id = ensure_session_id(client)
     try:
         resp = client.chat(
-        agent_endpoint_id=agent_ep_id,
-        chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
-        user_message=textinput,
-        session_id=sess_id
+                agent_endpoint_id=AGENT_ENDPOINT_ID,
+                chat_details=oci.generative_ai_agent_runtime.models.ChatDetails(
+                        user_message=user_message,
+                        session_id=session_id,
+                ),
+                retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
         )
-    )
+        return resp.data.message.content.text
+    except oci.exceptions.ServiceError as e:
+        st.error(f"Chat failed (status={e.status}, code={e.code}): {e.message}")
+        return "Sorry, I ran into an error while contacting the agent."
+    finally:
+        st.session_state["last_prompt"] = user_message
 
-# Initialize chat history
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
 
-# Display chat messages from history on app rerun
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+#Streamlit chat UI and state
 
-# Accept user input
-        if prompt := st.chat_input("How can I help?"):
-    # Add user message to chat history
-            st.session_state.messages.append({"role": "user", "content": prompt})
-    # Display user message in chat message container
-            with st.chat_message("user"):
-                st.markdown(prompt)
-
-    # Display assistant response in chat message container
-            with st.chat_message("assistant"):
-                response = response_generator(prompt)
-                write_response = st.write(response)
-    # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": response})
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+col1, col2 = st.columns([1, 6])
+with col1:
+    if st.button("Reset chat", type="secondary"):
+        if "ga_client" in st.session_state:
+                try:
+                        end_session(st.session_state.ga_client)
+                except Exception:
+                        pass
+        st.session_state.messages = []
+        st.experimental_rerun()
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+prompt = st.chat_input("How can I help?")
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"):
+        answer = chat_once(prompt)
+        st.markdown(answer)
+    st.session_state.messages.append({"role": "assistant", "content": answer})
