@@ -2,9 +2,9 @@ import streamlit as st
 import oci
 from typing import Optional
 
-st.set_page_config(page_title="JDPChatbot", page_icon="💬", layout="centered")
-st.title("JDPChatbot")
-st.caption("Ask a question to the Generative AI Agent. Click ‘Reset chat’ to start a new session.")
+st.set_page_config(page_title="OCI Gen-AI Chatbot", page_icon="💬", layout="centered")
+st.title("OCI Gen-AI Chatbot for Telco")
+st.caption("Ask a question to the Oracle Gen-AI Powered Agent. Click ‘Reset chat...’ to start a new session.")
 
 #Configuration: Load credentials from Streamlit Secrets
 
@@ -24,7 +24,7 @@ def build_oci_config() -> dict:
 
 #Runtime constants (update AGENT_ENDPOINT_ID)
 def get_runtime_endpoint(region: str) -> str:
-    return f"https://generativeaiagents-runtime.us-chicago-1.oci.oraclecloud.com "
+    return f"https://generativeaiagents-runtime.{region}.oci.oraclecloud.com"
 AGENT_ENDPOINT_ID = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja"
     
 
