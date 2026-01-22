@@ -10,7 +10,7 @@ st.caption("Ask a question to the Oracle Gen-AI Powered Agent. Click ‘Reset ch
 #Configuration: Load credentials from Streamlit Secrets
 
 def build_oci_config() -> dict:
-    sec = st.secrets["oci"]
+    sec = st.secrets["DEFAULT"]
     cfg = {
         "user": sec["user_ocid"],
         "tenancy": sec["tenancy_ocid"],
