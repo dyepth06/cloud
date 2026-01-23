@@ -28,7 +28,7 @@ def build_oci_config() -> dict:
 #Runtime constants (update AGENT_ENDPOINT_ID)
 def get_runtime_endpoint(region: str) -> str:
     return f"https://generativeaiagents-runtime.{region}.oci.oraclecloud.com"
-AGENT_ENDPOINT_ID = "ocid1.genaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja"
+AGENT_ENDPOINT_ID = "ocid1.generativeaiagentendpoint.oc1.us-chicago-1.amaaaaaac7x6gxiasdz374pvot4e3weyblbvm57zsphuxbjtagabglpiuaja"
     
 
 #Client lifecycle
