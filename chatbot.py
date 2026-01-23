@@ -1,7 +1,7 @@
 import streamlit as st
 import oci
 from typing import Optional
-from oci.exceptions import ServiceError, RequestException  #temproray
+#from oci.exceptions import ServiceError, RequestException  #temproray
 
 st.set_page_config(page_title="OCI Gen-AI Chatbot", page_icon="💬", layout="centered")
 st.title("OCI Gen-AI Chatbot for Telco")
@@ -20,7 +20,7 @@ def build_oci_config() -> dict:
         "pass_phrase": sec["pass_phrase"],
     }
     #if sec.get("pass_phrase"):
-    #    cfg["pass_phrase"] = sec["pass_phrase"]
+     #   cfg["pass_phrase"] = sec["pass_phrase"]
     #oci.config.validate_config(cfg)
     
     return cfg
