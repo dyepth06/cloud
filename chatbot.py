@@ -25,6 +25,23 @@ def build_oci_config() -> dict:
     #oci.config.validate_config(cfg)
     
     return cfg
+#---------
+
+def debug_check_endpoint():
+    cfg = build_oci_config()
+    region = cfg["region"]
+    mgmt_ep = f"https://generativeaiagents.{region}.oci.oraclecloud.com "
+    mgmt = oci.generative_ai_agent.GenerativeAiAgentClient(cfg, service_endpoint=mgmt_ep)
+    try:
+        ep = mgmt.get_agent_endpoint(agent_endpoint_id=AGENT_ENDPOINT_ID).data
+        st.info(f"Mgmt check OK. State={ep.lifecycle_state}, Compartment={ep.compartment_id}, NetworkVisibility={getattr(ep, 'network_visibility', 'UNKNOWN')}")
+    except oci.exceptions.ServiceError as e:
+        st.error(f"Mgmt get_agent_endpoint failed: status={e.status}, code={e.code}, msg={e.message}")
+
+#---------
+
+
+
 
 #Runtime constants (update AGENT_ENDPOINT_ID)
 def get_runtime_endpoint(region: str) -> str:
