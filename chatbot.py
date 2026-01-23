@@ -56,13 +56,31 @@ def ensure_session_id(client) -> str:
                         retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY,
                 )
                 st.session_state.agent_session_id = resp.data.id
-        except oci.exceptions.ServiceError as e:
-                st.error(f"CreateSession failed (status={e.status}, code={e.code}): {e.message}")
-                raise
-        finally:
 
-                st.session_state["create_session_attempted"] = True
+#------------------------------------------        
+#        except oci.exceptions.ServiceError as e:
+#                st.error(f"CreateSession failed (status={e.status}, code={e.code}): {e.message}")
+#------------------------------------------
+
+        except RequestException:
+            st.error("Network error calling Agents runtime. Check endpoint/region and public visibility.")
+            raise
+        except ServiceError as e:
+            st.error(f"CreateSession failed: status={e.status}, code={e.code}, message={e.message}")
+            st.write("Request ID:", e.request_id)
+            st.write("Endpoint called:", e.request_endpoint)
+            raise
+        finally:
+            st.session_state["create_session_attempted"] = True
     return st.session_state.agent_session_id
+
+#------------------------------------------
+#                raise
+#        finally:
+
+#                st.session_state["create_session_attempted"] = True
+#    return st.session_state.agent_session_id
+#------------------------------------------
 
 def end_session(client):
     sess_id = st.session_state.get("agent_session_id")
