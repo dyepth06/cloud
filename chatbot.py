@@ -13,8 +13,8 @@ st.caption("Ask a question to the Oracle Gen-AI Powered Agent. Click ‘Reset ch
 def build_oci_config() -> dict:
 #    sec = st.secrets["DEFAULT"]
     cfg = {
-        "user": sec["user"],
-        "tenancy": sec["tenancy"],
+        "user": sec["user_ocid"],
+        "tenancy": sec["tenancy_ocid"],
         "fingerprint": sec["fingerprint"],
         "region": sec["region"],
         "key_content": sec["private_key"],
