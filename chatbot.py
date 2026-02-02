@@ -22,7 +22,8 @@ def build_oci_config() -> dict:
     }
     #if sec.get("pass_phrase"):
      #   cfg["pass_phrase"] = sec["pass_phrase"]
-    #oci.config.validate_config(cfg)
+    
+    oci.config.validate_config(cfg)
     
     return cfg
 
