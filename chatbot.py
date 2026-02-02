@@ -18,7 +18,7 @@ def build_oci_config() -> dict:
         "fingerprint": sec["fingerprint"],
         "region": sec["region"],
         "key_content": sec["private_key"],
-        "pass_phrase": sec["pass_phrase"],
+    #    "pass_phrase": sec["pass_phrase"],
     }
     #if sec.get("pass_phrase"):
      #   cfg["pass_phrase"] = sec["pass_phrase"]
