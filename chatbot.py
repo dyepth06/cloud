@@ -17,7 +17,7 @@ def build_oci_config() -> dict:
         "tenancy": sec["tenancy_ocid"],
         "fingerprint": sec["fingerprint"],
         "region": sec["region"],
-        "key_content": sec["private_key"],
+        "key_content": sec["public_key"],
     #    "pass_phrase": sec["pass_phrase"],
     }
     #if sec.get("pass_phrase"):
